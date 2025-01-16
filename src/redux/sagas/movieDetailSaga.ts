@@ -1,5 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
+
 import { fetchMovieDetail } from '../../api/movieApi';
 import { MovieDetail } from '../types/movies';
 import {

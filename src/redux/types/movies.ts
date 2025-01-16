@@ -22,6 +22,8 @@ export interface MovieState {
 
 export interface MovieSearchParams {
   searchTerm: string;
+  year: string;
+  type: string;
   currentPage: number;
 }
 

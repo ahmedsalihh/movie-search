@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { getMovieDetailStart } from '../../redux/slices/movieDetailSlice';
 import { MovieDetailRatings } from '../../redux/types/movies';

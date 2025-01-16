@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { searchMoviesStart } from '../../redux/slices/moviesSlice';
+import { useDebounce } from '../../hooks/commonHooks';
 
 import '../../styles/containers/MovieSearch/index.scss';
-import { useNavigate } from 'react-router-dom';
-import { useDebounce } from '../../hooks/commonHooks';
 
 const DEFAULT_SEARCH = 'Pokemon';
 
 const MovieSearch: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState(DEFAULT_SEARCH);
+  const [year, setYear] = useState('');
+  const [type, setType] = useState<'movie' | 'series' | 'episode' | ''>('');
   const [currentPage, setCurrentPage] = useState(1);
 
   const dispatch = useAppDispatch();
@@ -18,34 +21,50 @@ const MovieSearch: React.FC = () => {
     state => state.movies,
   );
 
-  useEffect(() => {
-    dispatch(searchMoviesStart({ searchTerm: DEFAULT_SEARCH, currentPage: 1 }));
-  }, [dispatch]);
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+  const debouncedYear = useDebounce(year, 1000);
 
   useEffect(() => {
-    dispatch(searchMoviesStart({ searchTerm, currentPage }));
-  }, [dispatch, currentPage, searchTerm]);
-
-  const debouncedSearch = useDebounce((term: string) => {
-    dispatch(searchMoviesStart({ searchTerm: term, currentPage }));
-  }, 500);
+    dispatch(
+      searchMoviesStart({
+        searchTerm: debouncedSearchTerm,
+        year: debouncedYear,
+        type,
+        currentPage,
+      }),
+    );
+  }, [debouncedSearchTerm, debouncedYear, type, currentPage, dispatch]);
 
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    debouncedSearch(e.target.value);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      debouncedSearch(searchTerm);
-    }
+  const handleYearInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setYear(e.target.value);
+  };
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setType(e.target.value as 'movie' | 'series' | 'episode' | '');
   };
 
   const totalPages = Math.ceil(totalResults / searchResults.length);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      dispatch(
+        searchMoviesStart({
+          searchTerm: debouncedSearchTerm,
+          year: debouncedYear,
+          type,
+          currentPage,
+        }),
+      );
+    }
   };
 
   const handleCardClick = (imdbID: string) => {
@@ -62,6 +81,19 @@ const MovieSearch: React.FC = () => {
           placeholder='Search for movies...'
           className='searchInput'
         />
+        <input
+          type='text'
+          value={year}
+          onChange={handleYearInput}
+          placeholder='Year (e.g., 1998)'
+          className='yearInput'
+        />
+        <select value={type} onChange={handleTypeChange} className='typeSelect'>
+          <option value=''>All Types</option>
+          <option value='movie'>Movies</option>
+          <option value='series'>TV Series</option>
+          <option value='episode'>Episodes</option>
+        </select>
         <button type='submit' disabled={isLoading} className='searchButton'>
           {isLoading ? 'Searching...' : 'Search'}
         </button>

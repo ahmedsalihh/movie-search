@@ -10,13 +10,23 @@ const BASE_URL = 'http://www.omdbapi.com/';
 export const fetchMovies = async (
   params: MovieSearchParams,
 ): Promise<MovieSearchResponse> => {
-  const response = await fetch(
-    `${BASE_URL}?s=${params.searchTerm}&page=${params.currentPage}&apikey=${API_KEY}`,
-  );
+  const queryParams = new URLSearchParams({
+    s: params.searchTerm,
+    page: params.currentPage.toString(),
+    apikey: API_KEY,
+  });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch movie data');
+  if (params.year) {
+    queryParams.append('y', params.year);
   }
+
+  if (params.type) {
+    queryParams.append('type', params.type);
+  }
+
+  const url = `${BASE_URL}?${queryParams.toString()}`;
+  
+  const response = await fetch(url);
 
   const data = await response.json();
 

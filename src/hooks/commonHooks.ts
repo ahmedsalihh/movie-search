@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useRef } from 'react';
+import { useEffect, useState } from 'react';
 
-export function useDebounce(callback: (...args: any[]) => void, delay: number) {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+export const useDebounce = <T>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
-  const debouncedFunction = (...args: any[]) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      callback(...args);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
     }, delay);
-  };
 
-  return debouncedFunction;
-}
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
