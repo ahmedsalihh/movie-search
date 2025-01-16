@@ -29,5 +29,5 @@ function* searchMoviesSaga(action: PayloadAction<MovieSearchParams>) {
 }
 
 export function* watchMovie() {
-  yield takeLatest('movie/searchMoviesStart', searchMoviesSaga);
+  yield takeLatest('movies/searchMoviesStart', searchMoviesSaga);
 }

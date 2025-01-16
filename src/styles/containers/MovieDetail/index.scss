@@ -1,0 +1,38 @@
+.movie-details {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+
+  .title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .poster {
+    max-width: 300px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .info {
+    p {
+      margin: 10px 0;
+      font-size: 1rem;
+
+      strong {
+        font-weight: bold;
+      }
+    }
+
+    .ratings {
+      ul {
+        list-style-type: disc;
+        margin-left: 20px;
+
+        li {
+          margin: 5px 0;
+        }
+      }
+    }
+  }
+}

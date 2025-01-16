@@ -3,16 +3,19 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { searchMoviesStart } from '../../redux/slices/moviesSlice';
 
 import '../../styles/containers/MovieSearch/index.scss';
+import { useNavigate } from 'react-router-dom';
+import { useDebounce } from '../../hooks/commonHooks';
 
 const DEFAULT_SEARCH = 'Pokemon';
 
 const MovieSearch: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState(DEFAULT_SEARCH);
   const [currentPage, setCurrentPage] = useState(1);
 
   const dispatch = useAppDispatch();
   const { searchResults, isLoading, error, totalResults } = useAppSelector(
-    state => state.movie,
+    state => state.movies,
   );
 
   useEffect(() => {
@@ -23,10 +26,19 @@ const MovieSearch: React.FC = () => {
     dispatch(searchMoviesStart({ searchTerm, currentPage }));
   }, [dispatch, currentPage, searchTerm]);
 
+  const debouncedSearch = useDebounce((term: string) => {
+    dispatch(searchMoviesStart({ searchTerm: term, currentPage }));
+  }, 500);
+
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    debouncedSearch(e.target.value);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      dispatch(searchMoviesStart({ searchTerm, currentPage }));
+      debouncedSearch(searchTerm);
     }
   };
 
@@ -36,13 +48,17 @@ const MovieSearch: React.FC = () => {
     setCurrentPage(newPage);
   };
 
+  const handleCardClick = (imdbID: string) => {
+    navigate(`/movie/${imdbID}`);
+  };
+
   return (
     <div className='container'>
       <form className='searchForm' onSubmit={handleSearch}>
         <input
           type='text'
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={handleSearchInput}
           placeholder='Search for movies...'
           className='searchInput'
         />
@@ -59,7 +75,11 @@ const MovieSearch: React.FC = () => {
 
       <div className='grid'>
         {searchResults.map(movie => (
-          <div className='gridItem' key={movie.imdbID}>
+          <div
+            className='gridItem'
+            key={movie.imdbID}
+            onClick={() => handleCardClick(movie.imdbID)}
+          >
             <div className='title'>{movie.Title}</div>
             <div className='details'>
               <p>

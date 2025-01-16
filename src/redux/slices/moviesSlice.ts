@@ -3,17 +3,19 @@ import { MovieState, MovieSearchResult, MovieSearchParams } from '../types/movie
 
 const initialState: MovieState = {
   searchResults: [],
+  searchTerm: 'Pokemon',
   totalResults: 0,
   isLoading: false,
   error: null,
 };
 
-const movieSlice = createSlice({
-  name: 'movie',
+const moviesSlice = createSlice({
+  name: 'movies',
   initialState,
   reducers: {
     searchMoviesStart: (state, action: PayloadAction<MovieSearchParams>) => {
       state.isLoading = true;
+      state.searchTerm = action.payload.searchTerm;
       state.error = null;
     },
     searchMoviesSuccess: (
@@ -38,6 +40,6 @@ const movieSlice = createSlice({
 });
 
 export const { searchMoviesStart, searchMoviesSuccess, searchMoviesFailure } =
-  movieSlice.actions;
+  moviesSlice.actions;
 
-export default movieSlice.reducer;
+export default moviesSlice.reducer;
